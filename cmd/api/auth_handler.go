@@ -36,9 +36,15 @@ func (app *application) registerUser(w http.ResponseWriter, r *http.Request) {
 	user := &data.User{
 		Username:  body.Username,
 		Email:     body.Email,
-		Password:  []byte("random"),
 		Nickname:  body.Username,
 		IsEnabled: true,
+	}
+
+	err = user.SetPassword(body.Password)
+
+	if err != nil {
+		app.internalServerError(w, err)
+		return
 	}
 
 	err = app.models.User.Create(user)

@@ -1,9 +1,11 @@
 package data
 
 import (
+	"errors"
 	"strings"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -33,4 +35,29 @@ func (m *UserModel) Create(user *User) error {
 	}
 
 	return err
+}
+
+func (p *User) SetPassword(plainText string) error {
+	password, err := bcrypt.GenerateFromPassword([]byte(plainText), 8) // 12
+
+	if err != nil {
+		return err
+	}
+
+	p.Password = password
+	return nil
+}
+
+func (u *User) ComparePassword(plainText string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword(u.Password, []byte(plainText))
+
+	if err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
 }
