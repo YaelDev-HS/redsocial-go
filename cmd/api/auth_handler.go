@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/YaelDev-HS/redsocial-go/internal/data"
@@ -33,25 +34,33 @@ func (app *application) registerUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := &data.User{
-		Username: body.Username,
-		Email:    body.Email,
-		Password: []byte("random"),
+		Username:  body.Username,
+		Email:     body.Email,
+		Password:  []byte("random"),
+		Nickname:  body.Username,
+		IsEnabled: true,
 	}
 
 	err = app.models.User.Create(user)
 
 	if err != nil {
-		app.internalServerError(w, err)
+		switch {
+		case errors.Is(err, data.ErrDuplicatedKey):
+			app.badRequest(w, "email or username already exists")
+		default:
+			app.internalServerError(w, err)
+		}
+
 		return
 	}
 
 	response := responseBody{
 		Data: map[string]any{
-			"user": body,
+			"user": user,
 		},
 	}
 
-	if err := app.writeJson(w, response, http.StatusOK); err != nil {
+	if err := app.writeJson(w, response, http.StatusCreated); err != nil {
 		app.internalServerError(w, err)
 	}
 }
