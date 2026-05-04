@@ -9,6 +9,10 @@ func (app *application) badRequest(w http.ResponseWriter, err any) {
 	app.httpError(w, http.StatusBadRequest, err)
 }
 
+func (app *application) notFound(w http.ResponseWriter, err error) {
+	app.httpError(w, http.StatusNotFound, err.Error())
+}
+
 func (app *application) internalServerError(w http.ResponseWriter, err error) {
 	//TODO: logger
 	fmt.Printf("internal error: %s\n", err)

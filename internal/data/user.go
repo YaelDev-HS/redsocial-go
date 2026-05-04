@@ -37,6 +37,23 @@ func (m *UserModel) Create(user *User) error {
 	return err
 }
 
+func (m *UserModel) FindByEmail(email string) (*User, error) {
+	var user User
+
+	err := m.db.Where("email = ? AND is_enabled = TRUE", email).First(&user).Error
+
+	if err != nil {
+		switch {
+		case errors.Is(err, gorm.ErrRecordNotFound):
+			return nil, ErrModelNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &user, nil
+}
+
 func (p *User) SetPassword(plainText string) error {
 	password, err := bcrypt.GenerateFromPassword([]byte(plainText), 8) // 12
 

@@ -2,6 +2,10 @@ package validator
 
 import "regexp"
 
+var (
+	EmailRegex = `^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`
+)
+
 type Validator struct {
 	errors map[string]string
 }

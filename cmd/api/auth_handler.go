@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/YaelDev-HS/redsocial-go/internal/data"
@@ -68,5 +69,64 @@ func (app *application) registerUser(w http.ResponseWriter, r *http.Request) {
 
 	if err := app.writeJson(w, response, http.StatusCreated); err != nil {
 		app.internalServerError(w, err)
+	}
+}
+
+func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	if err := app.decodeJson(r, &body); err != nil {
+		app.badRequest(w, err)
+		return
+	}
+
+	v := validator.New()
+	v.Check(!v.Match(body.Email, validator.EmailRegex), "email", "is not valid")
+	v.Check(len(body.Password) > 3, "password", "is too short")
+	v.Check(len(body.Password) < 60, "password", "is too long")
+
+	if !v.IsValid() {
+		app.badRequest(w, v.Errors())
+		return
+	}
+
+	user, err := app.models.User.FindByEmail(body.Email)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrModelNotFound):
+			app.notFound(w, fmt.Errorf("email or password is not valid"))
+		default:
+			app.internalServerError(w, err)
+		}
+
+		return
+	}
+
+	ok, err := user.ComparePassword(body.Password)
+
+	if err != nil {
+		app.internalServerError(w, err)
+		return
+	}
+
+	if !ok {
+		app.badRequest(w, fmt.Errorf("email or password is not valid"))
+		return
+	}
+
+	//TODO: crear token de acceso
+	response := responseBody{
+		Data: map[string]any{
+			"user": user,
+		},
+	}
+
+	if err := app.writeJson(w, response, http.StatusOK); err != nil {
+		app.internalServerError(w, err)
+		return
 	}
 }
