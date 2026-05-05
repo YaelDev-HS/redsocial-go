@@ -16,7 +16,7 @@ func (app *application) notFound(w http.ResponseWriter, err error) {
 func (app *application) internalServerError(w http.ResponseWriter, err error) {
 	//TODO: logger
 	fmt.Printf("internal error: %s\n", err)
-	app.httpError(w, http.StatusInternalServerError, fmt.Errorf("internal server error!"))
+	app.httpError(w, http.StatusInternalServerError, "internal server error!")
 }
 
 func (app *application) httpError(w http.ResponseWriter, status int, err any) {

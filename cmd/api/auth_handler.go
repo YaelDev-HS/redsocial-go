@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/YaelDev-HS/redsocial-go/internal/data"
 	"github.com/YaelDev-HS/redsocial-go/internal/validator"
@@ -61,9 +62,17 @@ func (app *application) registerUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := app.models.Token.Insert(user.ID, time.Hour*24, data.ScopeAuthentication)
+
+	if err != nil {
+		app.internalServerError(w, err)
+		return
+	}
+
 	response := responseBody{
 		Data: map[string]any{
-			"user": user,
+			"user":  user,
+			"token": token,
 		},
 	}
 
@@ -118,10 +127,17 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//TODO: crear token de acceso
+	token, err := app.models.Token.Insert(user.ID, time.Hour*48, data.ScopeAuthentication)
+
+	if err != nil {
+		app.internalServerError(w, err)
+		return
+	}
+
 	response := responseBody{
 		Data: map[string]any{
-			"user": user,
+			"user":  user,
+			"token": token,
 		},
 	}
 
