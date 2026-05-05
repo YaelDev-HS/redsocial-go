@@ -148,9 +148,11 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) checkToken(w http.ResponseWriter, r *http.Request) {
+	user, _ := app.getUserContext(r)
+
 	app.writeJson(w, responseBody{
 		Data: map[string]any{
-			"ok": true,
+			"user": user,
 		},
 	}, http.StatusOK)
 }

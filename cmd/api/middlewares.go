@@ -38,9 +38,7 @@ func (app *application) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		//TODO: guardar el usuario en el contexto de Go
-		fmt.Println(token.User)
-
-		next.ServeHTTP(w, r)
+		request := app.setUserContext(r, token.User)
+		next.ServeHTTP(w, request)
 	}
 }
