@@ -146,3 +146,11 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (app *application) checkToken(w http.ResponseWriter, r *http.Request) {
+	app.writeJson(w, responseBody{
+		Data: map[string]any{
+			"ok": true,
+		},
+	}, http.StatusOK)
+}

@@ -14,4 +14,5 @@ func (app *application) routes() *http.ServeMux {
 func (app *application) authRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/auth/register", app.registerUser)
 	mux.HandleFunc("POST /api/auth/login", app.loginUser)
+	mux.Handle("GET /api/auth/test", app.AuthMiddleware(app.checkToken))
 }

@@ -5,6 +5,10 @@ import (
 	"net/http"
 )
 
+func (app *application) unauthorized(w http.ResponseWriter, err error) {
+	app.httpError(w, http.StatusUnauthorized, err.Error())
+}
+
 func (app *application) badRequest(w http.ResponseWriter, err any) {
 	app.httpError(w, http.StatusBadRequest, err)
 }
