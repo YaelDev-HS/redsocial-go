@@ -3,8 +3,9 @@ package data
 import "gorm.io/gorm"
 
 type Models struct {
-	User  *UserModel
-	Token *TokenModel
+	User    *UserModel
+	Token   *TokenModel
+	Message *MessageModel
 }
 
 func New(db *gorm.DB) *Models {
@@ -13,6 +14,9 @@ func New(db *gorm.DB) *Models {
 			db: db,
 		},
 		Token: &TokenModel{
+			db: db,
+		},
+		Message: &MessageModel{
 			db: db,
 		},
 	}

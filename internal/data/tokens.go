@@ -82,7 +82,7 @@ func (m *TokenModel) FindByPlaintext(plaintext, scope string) (*Token, error) {
 	hash := sha256.Sum256([]byte(plaintext))
 
 	err := m.db.Preload("User", func(db *gorm.DB) *gorm.DB {
-		return db.Select("id", "email")
+		return db.Select("id", "email", "nickname")
 	}).Where("token = ? AND expiry_at > ? AND scope = ?", hash[:], time.Now(), scope).First(&token).Error
 
 	if err != nil {
