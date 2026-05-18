@@ -26,9 +26,8 @@ func (app *application) registerUser(w http.ResponseWriter, r *http.Request) {
 
 	v := validator.New()
 
-	v.Check(body.Email != "", "email", "email is not valid")
-	v.Check(body.Password != "", "password", "password is not valid")
-	v.Check(body.Username != "", "username", "username is not valid")
+	data.CheckPasswordAndEmail(v, body.Password, body.Email)
+	v.Check(body.Username != "", "username", "is not valid")
 
 	if !v.IsValid() {
 		app.badRequest(w, v.Errors())
@@ -93,9 +92,7 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v := validator.New()
-	v.Check(!v.Match(body.Email, validator.EmailRegex), "email", "is not valid")
-	v.Check(len(body.Password) > 3, "password", "is too short")
-	v.Check(len(body.Password) < 60, "password", "is too long")
+	data.CheckPasswordAndEmail(v, body.Password, body.Email)
 
 	if !v.IsValid() {
 		app.badRequest(w, v.Errors())

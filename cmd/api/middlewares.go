@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-
-	"github.com/YaelDev-HS/redsocial-go/internal/data"
 )
 
 func (app *application) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
@@ -19,18 +17,12 @@ func (app *application) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		plainText := header[7:]
-
-		if len(plainText) != 26 {
-			app.unauthorized(w, fmt.Errorf("token is not valid or expired"))
-			return
-		}
-
-		token, err := app.models.Token.FindByPlaintext(plainText, data.ScopeAuthentication)
+		user, err := app.getUserAuthByToken(plainText)
 
 		if err != nil {
 			switch {
-			case errors.Is(err, data.ErrModelNotFound):
-				app.badRequest(w, fmt.Errorf("token is not valid or expired"))
+			case errors.Is(err, unauthorizedError):
+				app.unauthorized(w, err)
 			default:
 				app.internalServerError(w, err)
 			}
@@ -38,7 +30,7 @@ func (app *application) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		request := app.setUserContext(r, token.User)
+		request := app.setUserContext(r, user)
 		next.ServeHTTP(w, request)
 	}
 }

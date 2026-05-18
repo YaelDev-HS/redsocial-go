@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/YaelDev-HS/redsocial-go/internal/validator"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -77,4 +78,10 @@ func (u *User) ComparePassword(plainText string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func CheckPasswordAndEmail(v *validator.Validator, password, email string) {
+	v.Check(len(password) > 3, "password", "is too short")
+	v.Check(len(password) < 60, "password", "is too long")
+	v.Check(!v.Match(email, validator.EmailRegex), "email", "is not valid")
 }
