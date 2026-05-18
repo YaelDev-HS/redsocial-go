@@ -4,12 +4,13 @@ import (
 	"net/http"
 
 	"github.com/YaelDev-HS/redsocial-go/internal/data"
+	"github.com/YaelDev-HS/redsocial-go/internal/store"
 	"github.com/YaelDev-HS/redsocial-go/internal/validator"
 )
 
 func (app *application) SendMessage(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Message string
+		Message string `json:"message"`
 	}
 
 	if err := app.decodeJson(r, &body); err != nil {
@@ -45,7 +46,12 @@ func (app *application) SendMessage(w http.ResponseWriter, r *http.Request) {
 		Nickname: user.Nickname,
 	}
 
-	//TODO: notificar mediante websockets
+	//? notificar mediante websockets
+	storeMsg := &store.StoreMessage{
+		Type:    store.NEW_MESSAGE,
+		Message: message,
+	}
+	app.store.NotifyAll(storeMsg)
 
 	response := responseBody{
 		Data: map[string]any{

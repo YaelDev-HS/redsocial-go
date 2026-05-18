@@ -23,8 +23,11 @@ func (app *application) ConnectWs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	app.store.AddConn(conn)
+
 	defer func() {
 		fmt.Println("Close connection")
+		app.store.RemoveConn(conn)
 		conn.Close()
 	}()
 

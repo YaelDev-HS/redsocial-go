@@ -7,11 +7,13 @@ import (
 	"os"
 
 	"github.com/YaelDev-HS/redsocial-go/internal/data"
+	"github.com/YaelDev-HS/redsocial-go/internal/store"
 	"github.com/joho/godotenv"
 )
 
 type application struct {
 	models *data.Models
+	store  store.Store
 }
 
 func init() {
@@ -36,6 +38,7 @@ func main() {
 
 	app := &application{
 		models: models,
+		store:  store.New(),
 	}
 
 	server := http.Server{
