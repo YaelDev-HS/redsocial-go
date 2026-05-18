@@ -11,9 +11,14 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type config struct {
+	clientURL string
+}
+
 type application struct {
 	models *data.Models
 	store  store.Store
+	config *config
 }
 
 func init() {
@@ -40,6 +45,9 @@ func main() {
 	app := &application{
 		models: models,
 		store:  store.New(),
+		config: &config{
+			clientURL: os.Getenv("CLIENT_URL"),
+		},
 	}
 
 	server := http.Server{

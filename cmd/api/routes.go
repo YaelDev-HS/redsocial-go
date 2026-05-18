@@ -1,16 +1,25 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
 
-func (app *application) routes() *http.ServeMux {
+	"github.com/rs/cors"
+)
+
+func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{app.config.clientURL},
+		AllowedMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Authorization", "Content-Type"},
+	})
 
 	// se van a definir nuestras rutas
 	app.authRoutes(mux)
 	app.chatRoutes(mux)
 	app.wsRoutes(mux)
 
-	return mux
+	return c.Handler(mux)
 }
 
 func (app *application) authRoutes(mux *http.ServeMux) {
